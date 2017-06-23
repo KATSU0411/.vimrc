@@ -23,7 +23,7 @@ set matchtime=1 "括弧入力時に対応する括弧を表示
 set noswapfile "スワップファイルを作成しない
 set backspace=indent,eol,start
 set foldmethod=indent "フォールド(折り畳み)
-set foldlevel=2 "折り畳みレベルの指定
+set foldlevel=100 "折り畳みレベルの指定
 set foldcolumn=1
 "set mouse=a "マウス機能
 set history=10000 "ヒストリーストック数(default 20)
@@ -250,7 +250,9 @@ NeoBundle 'mattn/emmet-vim'
 NeoBundle 'jistr/vim-nerdtree-tabs'
 "NeoBundle 'airblade/vim-gitgutter' "git
 NeoBundle 'rhysd/accelerated-jk'
-NeoBundle 'tyru/open-browser.vim'
+"NeoBundle 'tyru/open-browser.vim'
+NeoBundle 'tiagofumo/vim-nerdtree-syntax-highlight'
+NeoBundle 'tyru/caw.vim.git'
 
 
 
@@ -267,10 +269,12 @@ NeoBundleCheck
 "nmap j <Plug>(accelerated_jk_gj)
 "nmap k <Plug>(accelerated_jk_gk)
 
-"カーソル下の単語等をブラウザで開く
-let g:netrw_nogx = 1
-nmap gx <Plug>(openbrowser-serarch)
 
+
+"--------------------caw.vim------------
+"cmでcommentout
+nmap cm <Plug>(caw:hatpos:toggle)
+vmap cm <Plug>(caw:hatpos:toggle)
 
 "---------------------snippets-----------------------
 let g:neosnippet#snippets_directory='~/.vim/bundle/vim-snippets/snippets/'
@@ -283,24 +287,61 @@ let g:neosnippet#snippets_directory='~/.vim/bundle/vim-snippets/snippets/'
  imap <C-k>     <Plug>(neosnippet_expand_or_jump)
  smap <C-k>     <Plug>(neosnippet_expand_or_jump)
 
+ imap <expr><CR>  pumvisible() ? neocomplcache#close_popup() : "<CR>"
+ " imap <expr><CR>  pumvisible() ? "\<Plug>(neosnippet_expand_or_jump)" : "<CR>"
+
  
+
  " SuperTab like snippets behavior.
  " imap <expr><TAB> neosnippet#jumpable() ?
  "\<Plug>(neosnippet_expand_or_jump)" : pumvisible() ? "\<C-n>" : "\<TAB>"
- imap <expr><TAB> pumvisible() ? "\<C-n>" : neosnippet#jumpable() ?"\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+ imap <expr><TAB> neosnippet#jumpable() ?"\<Plug>(neosnippet_expand_or_jump)" : pumvisible() ? "\<C-n>" : "\<TAB>"
  smap <expr><TAB> neosnippet#jumpable() ?"\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+
+ 
  
 
  " For snippet_complete marker.
  if has('conceal')
-   set conceallevel=2 concealcursor=i
+   set conceallevel=1 concealcursor=i
 endif
 
 
 "--------------------nerdtree-------------------------
  inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
  inoremap <expr><C-l>     neocomplete#complete_common_string()
+" let NERDTreeShowHidden = 1	"隠しファイル有無
+ autocmd VimEnter * NERDTree
+ map <C-n> :NERDTreeToggle<CR>
+ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif "Treeだけ残るようなら終了
+ 
 
+  "NERDTress File highlighting--拡張子ごとのハイライト設定
+let g:NERDTreeFileExtensionHighlightFullName = 1
+let g:NERDTreeExactMatchHighlightFullName = 1
+let g:NERDTreePatternMatchHighlightFullName = 1
+
+
+"function! NERDTreeHighlightFile(extension, fg, bg, guifg, guibg)
+"	exec 'autocmd filetype nerdtree highlight ' . a:extension .' ctermbg='.  a:bg .' ctermfg='. a:fg .' guibg='. a:guibg .' guifg='. a:guifg
+"	exec 'autocmd filetype nerdtree syn match ' . a:extension .' #^\s\+.*'.  a:extension .'$#'
+"
+"endfunction
+"
+"call NERDTreeHighlightFile('py',     'yellow',  'none', 'yellow','#151515')
+"call NERDTreeHighlightFile('md',     'blue',    'none', '#3366FF', '#151515')
+"call NERDTreeHighlightFile('yml',    'yellow',  'none', 'yellow', '#151515')
+"call NERDTreeHighlightFile('config', 'yellow',  'none', 'yellow', '#151515')
+"call NERDTreeHighlightFile('conf',   'yellow',  'none', 'yellow', '#151515')
+"call NERDTreeHighlightFile('json',   'yellow',  'none', 'yellow', '#151515')
+"call NERDTreeHighlightFile('html',   'yellow',  'none', 'yellow', '#151515')
+"call NERDTreeHighlightFile('styl',   'cyan',    'none', 'cyan', '#151515')
+"call NERDTreeHighlightFile('css',    'cyan',    'none', 'cyan', '#151515')
+"call NERDTreeHighlightFile('rb',     'Red',     'none', 'red', '#151515')
+"call NERDTreeHighlightFile('js',     'Red',     'none', '#ffa500', '#151515')
+"call NERDTreeHighlightFile('php',    'Magenta', 'none', '#ff00ff', '#151515')
+"call NERDTreeHighlightFile('c',    'darkblue', 'none', '#00008b', '#151515')
+"
 "----------------------neocomplacache------------------
 highlight Pmenu ctermbg=4
 highlight PmenuSel ctermbg=1
@@ -350,6 +391,12 @@ highlight PMenuSbar ctermbg=4
            let g:neocomplete#keyword_patterns = {}
            endif
            let g:neocomplete#keyword_patterns['default'] = '\h\w*'
+
+" <TAB>: completion.                                         
+" inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"   
+" inoremap <expr><S-TAB>  pumvisible() ? "\<C-p>" : "\<S-TAB>" 
+"
+"" neocomplcache
 "---------------------------------------------------------
 
 
